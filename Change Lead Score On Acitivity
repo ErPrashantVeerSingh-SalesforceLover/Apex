@@ -92,3 +92,77 @@ trigger UpdateLeadScoreEvent on Event(After Insert){
             system.debug('@@@@@ getLine: '+ex.getLineNumber());
         }
 }
+
+*******************************************************TO Display Result on Lightning Component*********************************************************
+
+//Apex Controller
+
+public class DisplayLeadScore {
+
+    @AuraEnabled
+    public static List<Lead> DisplayLeadScoreMethod(){
+        list<Lead> lstLead = new list<Lead>();
+        lstLead=[select Id,Name, Lead_Score__c from Lead ORDER BY Lead_Score__c ASC NULLS LAST Limit 49999];
+        return lstLead;
+    }
+}
+
+************************************************************Lightning Component****************************************************************************
+
+<aura:component Controller="DisplayLeadScore">
+    
+    <aura:attribute name="LeadScore" type="list"/>
+    <aura:handler name="init" value="{!this}" action="{!c.myAction}"/>
+    
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+        <thead>
+            <tr class="slds-line-height_reset">
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Opportunity Name">Lead Id</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Account Name">Lead Name</div>
+                </th>
+                <th class="" scope="col">
+                    <div class="slds-truncate" title="Close Date">Lead Score</div>
+                </th>
+                
+            </tr>
+        </thead>
+        <tbody>
+             <aura:iteration items="{!v.LeadScore}"  var="leadScore">
+    
+            <tr class="slds-hint-parent">
+                <th data-label="Opportunity Name" scope="row">
+                    <div class="slds-truncate" title="Cloudhub">
+                        <a href="javascript:void(0);" tabindex="-1">{!leadScore.Id}</a>
+                    </div>
+                </th>
+                <td data-label="Account Name">
+                    <div class="slds-truncate" title="Cloudhub">{!leadScore.Name}</div>
+                </td>
+                <td data-label="Close Date">
+                    <div class="slds-truncate" title="4/14/2015">{!leadScore.Lead_Score__c}</div>
+                </td>
+                
+            </tr>
+                 </aura:iteration>
+        </tbody>
+    </table>
+    
+</aura:component>
+
+**********************************************************Controller.js****************************************************************************
+({
+	myAction : function(component, event, helper) {
+        var action = component.get("c.DisplayLeadScoreMethod");
+        action.setCallback(this,function(response){
+            var responseState=response.getState();
+            if(responseState==='SUCCESS'){
+                var responseValue= response.getReturnValue();
+                component.set("v.LeadScore",responseValue);
+            }
+        });
+		$A.enqueueAction(action);
+	}
+})
