@@ -1,0 +1,94 @@
+//Create a custom field with Data type: Number
+
+******************************************************************************************************************************************************
+//Trigger on Task
+trigger UpdateLeadScoreTask on Task(After Insert){
+    try{
+        map<String,Task> mapTaskLe = new map<String,Task>();
+        list<Lead> lstInitialLe = new list<Lead>();
+        list<Lead> lstUpdateScore = new list<Lead>();
+        if(trigger.isExecuting && trigger.isAfter && trigger.isInsert){
+            
+            for(Task t:trigger.new){
+                
+                mapTaskLe.put(t.WhoId,t);
+             }
+            if(mapTaskLe.size()>0){
+                lstInitialLe=[select Id, Lead_Score__c,Rating from Lead where Id=:mapTaskLe.KeySet()];
+             }
+            if(lstInitialLe.size()>0){
+                
+                for(Lead le:lstInitialLe){
+                //solution to null pointer exception from line 22 
+                    if(le.Lead_Score__c==Null){
+                        le.Lead_Score__c=1;
+                    }else if(le.Lead_Score__c!=Null && le.Lead_Score__c<10){
+                        le.Lead_Score__c=le.Lead_Score__c+1;
+                    }else{
+                        le.Lead_Score__c=le.Lead_Score__c+1;
+                        le.Rating='Hot';
+                    }
+                    
+                    lstUpdateScore.add(le);
+                }}
+            
+        }
+        
+        if(lstUpdateScore.size()>0){
+           
+            update lstUpdateScore;
+            
+        }}catch(exception ex){
+            system.debug('@@@@ getMessage: '+ex.getMessage());
+            system.debug('@@@@@ getLine: '+ex.getLineNumber());
+        }
+}
+
+
+***************************************************************************************************************************************************
+//Trigger on Event Object
+
+trigger UpdateLeadScoreEvent on Event(After Insert){
+    try{
+        map<String,Event> mapTaskLe = new map<String,Event>();
+        list<Lead> lstInitialLe = new list<Lead>();
+        list<Lead> lstUpdateScore = new list<Lead>();
+        if(trigger.isExecuting && trigger.isAfter && trigger.isInsert){
+            
+            for(Event ev:trigger.new){
+                
+                mapTaskLe.put(ev.WhoId,ev);
+                
+            }
+            if(mapTaskLe.size()>0){
+                lstInitialLe=[select Id, Lead_Score__c,Rating from Lead where Id=:mapTaskLe.KeySet()];
+                
+            }
+            if(lstInitialLe.size()>0){
+                
+                for(Lead le:lstInitialLe){
+                    if(le.Lead_Score__c==Null){
+                        le.Lead_Score__c=1;
+                    }else if(le.Lead_Score__c!=Null && le.Lead_Score__c>10){
+                        
+                        le.Lead_Score__c=le.Lead_Score__c+1;
+                        
+                    }else{
+                        le.Lead_Score__c=le.Lead_Score__c+1;
+                        le.Rating='Hot';
+                    }
+                    
+                    lstUpdateScore.add(le);
+                }}
+            
+        }
+        
+        if(lstUpdateScore.size()>0){
+          
+            update lstUpdateScore;
+            
+        }}catch(exception ex){
+            system.debug('@@@@ getMessage: '+ex.getMessage());
+            system.debug('@@@@@ getLine: '+ex.getLineNumber());
+        }
+}
