@@ -1,0 +1,30 @@
+*/ ------Problem Statement--------
+Write a trigger, when account is updated than create a contact with it's old data
+----------------------
+*/
+
+trigger AccCont on Account(after update){
+    
+    list<Contact> lstCon = new list<Contact>();
+    list<Account> lstAcc = new list<Account>();
+    try{
+        if(trigger.isExecuting && trigger.isUpdate && trigger.isAfter){
+            
+            for(Account ac:trigger.new){
+                
+                if(ac!=trigger.oldmap.get(ac.Id)){
+                    
+                    Contact ct= new Contact();
+                    ct.LastName=ac.Id;
+                    ct.AccountId=ac.Id;
+                    lstCon.add(ct);
+                    lstAcc.add(ac);
+                }}
+            if(lstCon.size()>0){
+                insert lstCon;
+            }
+            if(lstAcc.size()>0){
+                update lstAcc;
+            }}} catch(exception ex){
+                system.debug('@@@@ ex.getmessage: '+ex.getmessage());
+            }}
