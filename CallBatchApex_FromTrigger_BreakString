@@ -60,3 +60,33 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>{
     }
     
 }
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Test Class<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+@isTest
+public class TestBatchOpportunityCurrency {
+    
+    @TestSetUp public static void CreateData(){
+        try{
+        Opportunity opp = new Opportunity();
+        opp.Name='testOp';
+        opp.CloseDate=system.today();
+        opp.StageName='Prospecting';
+        opp.Multi_currecy__c='AUD 20,930.00 (USD 32,11.90)';
+        insert opp;
+        }catch(exception ex){}
+    }
+    
+    @isTest public static void TestMethod1(){
+        try{
+        Opportunity op=[select Id, Name,CloseDate,StageName,Multi_currecy__c,USD__c from Opportunity Limit 1];
+        test.startTest();
+        op.StageName='Qualification';
+        update op;
+        system.assertEquals(op.StageName,'Qualification');
+        test.stopTest();
+    }catch(exception ex){
+        
+    }}
+}
