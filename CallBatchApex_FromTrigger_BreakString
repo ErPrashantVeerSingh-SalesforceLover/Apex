@@ -44,7 +44,7 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>{
     public void execute(Database.BatchableContext bc, list<Opportunity>records){
         list<Opportunity> lstOpp= new list<Opportunity>();
         for(Opportunity op:records){
-            string USDCurr = string.ValueOf(op.Multi_currecy__c);
+            string USDCurr = string.ValueOf(op.Multi_currecy__c);        //current value AUD 20,930.00 (USD 32,11.90)
             string USDrate= USDCurr.substringAfter('USD');
             string USDfRate =USDrate.SubStringBefore(')');
             string FinalUSD=USDfRate;
