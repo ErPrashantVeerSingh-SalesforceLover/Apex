@@ -48,7 +48,7 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>{
             string USDrate= USDCurr.substringAfter('USD');
             string USDfRate =USDrate.SubStringBefore(')');
             string FinalUSD=USDfRate;
-            op.USD__c=FinalUSD;
+            op.USD__c=FinalUSD;                                         //Value now inside field: 32,11.90
             lstOpp.add(op);
         }
         update lstOpp;
