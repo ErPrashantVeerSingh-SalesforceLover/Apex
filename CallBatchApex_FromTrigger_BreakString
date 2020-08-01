@@ -6,6 +6,8 @@ When StageName is changing, you have to:
 Approach:
 1. Writing trigger
 2. Calling batch Apex from Trigger to perform this operation
+
+Explaination: https://youtu.be/sqDNn-rF2WE
 *************************************************************************************************
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Trigger<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
