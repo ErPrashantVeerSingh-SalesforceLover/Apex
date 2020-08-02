@@ -115,9 +115,11 @@ public class TestBatchOpportunityCurrency {
         Opportunity op=[select Id, Name,CloseDate,StageName,Multi_currecy__c,USD__c from Opportunity Limit 1];
         test.startTest();
         op.StageName='Qualification';
+         update op;
+         
             BatchOpportunityCurrency bc = new BatchOpportunityCurrency();
             Database.executebatch(bc);
-        update op;
+       
         system.assertEquals(op.StageName,'Qualification');
         test.stopTest();
     }catch(exception ex){
