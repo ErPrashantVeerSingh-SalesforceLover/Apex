@@ -6,8 +6,6 @@ When StageName is changing, you have to:
 Approach:
 1. Writing trigger
 2. Calling batch Apex from Trigger to perform this operation
-
-Explaination: https://youtu.be/sqDNn-rF2WE
 *************************************************************************************************
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Trigger<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -20,7 +18,7 @@ trigger ExtractCurr on Opportunity (before Update) {
                     
                     //Calling batch class from Trigger
                     BatchOpportunityCurrency btOpCu= new BatchOpportunityCurrency();
-                    Database.executebatch(btOpCu,200);  //controlling batch size
+                    Database.executebatch(btOpCu,10);  //controlling batch size
                 }
             }
         }
@@ -30,14 +28,13 @@ trigger ExtractCurr on Opportunity (before Update) {
     }
 }
 
-
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Batch Class<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Database.Stateful{
     
     integer RecordProcessed=0;
     integer RecordFailed=0;
-    list<Opportunity> lstOpPr= new list<Opportunity>();        //don't update this list in execute method, else state will not be maintained
+    list<Opportunity> lstOpPr= new list<Opportunity>();
     
     //start method
     public Database.QueryLocator start(Database.BatchableContext bc){
@@ -77,6 +74,7 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Da
         system.debug('@@@@ Records processed: '+RecordProcessed);
         system.debug('@@@@ Records failed: '+RecordFailed);
         system.debug('@@@@ lstOpPr: '+lstOpPr);
+        system.debug('@@@@ lstOpPr size: '+lstOpPr.size());
         
     }
     
