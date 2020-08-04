@@ -1,0 +1,126 @@
+*************************Problem Statement*****************************************************
+When StageName is changing, you have to:
+1. break the field Value e.g. giving in format AUD 20,930.00 (USD 32,11.90)
+2. And put 32,11.90 this in different field
+
+Approach:
+1. Writing trigger
+2. Calling batch Apex from Trigger to perform this operation
+
+Explaination: https://youtu.be/sqDNn-rF2WE
+*************************************************************************************************
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Trigger<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+trigger ExtractCurr on Opportunity (before Update) {
+    
+    try{
+        if(trigger.isExecuting && trigger.isBefore && trigger.isUpdate){
+            for(Opportunity op:trigger.new){
+                if(op.StageName!=trigger.oldmap.get(op.Id).StageName){
+                    
+                    //Calling batch class from Trigger
+                    BatchOpportunityCurrency btOpCu= new BatchOpportunityCurrency();
+                    Database.executebatch(btOpCu,200);  //controlling batch size
+                }
+            }
+        }
+    }catch(exception ex){
+        system.debug('@@@@ ex.getLineNumber: '+ex.getLineNumber());
+        system.debug('@@@@ ex.getLineNumber: '+ex.getMessage());
+    }
+}
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Batch Class<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Database.Stateful{
+    
+    integer RecordProcessed=0;
+    integer RecordFailed=0;
+    //start method
+    public Database.QueryLocator start(Database.BatchableContext bc){
+        
+        return database.getQueryLocator('select Id, Multi_currecy__c, USD__c from Opportunity');
+        
+    }
+    
+    //execute method
+    public void execute(Database.BatchableContext bc, list<Opportunity>records){
+        list<Opportunity> lstOpp= new list<Opportunity>();
+        for(Opportunity op:records){
+            string USDCurr = string.ValueOf(op.Multi_currecy__c);
+            string USDrate= USDCurr.substringAfter('USD');
+            string USDfRate =USDrate.SubStringBefore(')');
+            string FinalUSD=USDfRate;
+            op.USD__c=FinalUSD;
+            if(op.USD__c!=Null && op.USD__c!=''){
+                RecordProcessed=RecordProcessed+1;
+                lstOpp.add(op);
+            }
+            else{
+                RecordFailed=RecordFailed+1; 
+            }}
+        update lstOpp;
+    }
+    
+    //finish method
+    public void finish (Database.BatchableContext bc){
+        AsyncApexJob job=[SELECT Id, CreatedDate, CreatedById, JobType, ApexClassId, Status, JobItemsProcessed, 
+                          TotalJobItems, NumberOfErrors, CompletedDate, MethodName, 
+                          ExtendedStatus FROM AsyncApexJob where Id=:bc.getJobId()] ;
+        system.debug('@@@@ JobId: '+bc.getJobId());
+        system.debug('@@@@ job: '+job);
+        system.debug('@@@@ Records processed: '+RecordProcessed);
+        system.debug('@@@@ Records failed: '+RecordFailed);
+        
+    }
+    
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Test Class%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@isTest
+public class TestBatchOpportunityCurrency {
+    
+    @TestSetUp public static void CreateData(){
+        try{
+            Opportunity opp = new Opportunity();
+            opp.Name='testOp';
+            opp.CloseDate=system.today();
+            opp.StageName='Prospecting';
+            opp.Multi_currecy__c='AUD 20,930.00 (USD 32,11.90)';
+            insert opp;
+        }catch(exception ex){}
+    }
+    
+    @isTest public static void TestMethod1(){
+        try{
+            Opportunity op=[select Id, Name,CloseDate,StageName,Multi_currecy__c,USD__c from Opportunity Limit 1];
+            test.startTest();
+            op.StageName='Qualification';
+            update op;
+            BatchOpportunityCurrency bc = new BatchOpportunityCurrency();
+            Database.executebatch(bc);
+            //update op;
+            system.assertEquals(op.StageName,'Qualification');
+            test.stopTest();
+        }catch(exception ex){
+            
+        }}
+    
+    @isTest public static void TestMethod2(){
+        try{
+            Opportunity op=[select Id, Name,CloseDate,StageName,Multi_currecy__c,USD__c from Opportunity Limit 1];
+            test.startTest();
+            op.StageName='Qualification';
+            op.Multi_currecy__c='AUD 20,930.00 (EUD 32,11.90)';
+            update op;
+            BatchOpportunityCurrency bc = new BatchOpportunityCurrency();
+            Database.executebatch(bc);
+            //update op;
+            system.assertEquals(op.StageName,'Qualification');
+            test.stopTest();
+        }catch(exception ex){
+            
+        }  
+    }
+}
