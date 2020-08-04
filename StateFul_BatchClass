@@ -37,6 +37,8 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Da
     
     integer RecordProcessed=0;
     integer RecordFailed=0;
+    list<Opportunity> lstOpPr= new list<Opportunity>();
+    
     //start method
     public Database.QueryLocator start(Database.BatchableContext bc){
         
@@ -55,12 +57,14 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Da
             op.USD__c=FinalUSD;
             if(op.USD__c!=Null && op.USD__c!=''){
                 RecordProcessed=RecordProcessed+1;
+                lstOpPr.add(op);
                 lstOpp.add(op);
             }
             else{
                 RecordFailed=RecordFailed+1; 
             }}
         update lstOpp;
+       
     }
     
     //finish method
@@ -72,6 +76,7 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Da
         system.debug('@@@@ job: '+job);
         system.debug('@@@@ Records processed: '+RecordProcessed);
         system.debug('@@@@ Records failed: '+RecordFailed);
+        system.debug('@@@@ lstOpPr: '+lstOpPr);
         
     }
     
