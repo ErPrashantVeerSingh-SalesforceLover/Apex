@@ -37,7 +37,7 @@ public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Da
     
     integer RecordProcessed=0;
     integer RecordFailed=0;
-    list<Opportunity> lstOpPr= new list<Opportunity>();
+    list<Opportunity> lstOpPr= new list<Opportunity>();        //don't update this list in execute method, else state will not be maintained
     
     //start method
     public Database.QueryLocator start(Database.BatchableContext bc){
