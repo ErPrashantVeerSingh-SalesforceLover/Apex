@@ -1,0 +1,150 @@
+========================================Apex Trigger===========================================================================
+
+/*
+This Apex trigger, will call Apex Schedular class and from this Schedular Class we will call our batch class
+*/
+
+trigger ExtractCurr on Opportunity (before Update) {
+    
+    try{
+        if(trigger.isExecuting && trigger.isBefore && trigger.isUpdate){
+            for(Opportunity op:trigger.new){
+                if(op.StageName!=trigger.oldmap.get(op.Id).StageName){
+                    
+                    BatchOpportunityCurrencyScheduler bOCs = new BatchOpportunityCurrencyScheduler();
+					// Seconds Minutes Hours Day_of_month Month Day_of_week optional_year
+					String sch = '0 0 6 6 8 ?';
+					String jobID = System.schedule('BatchOpportunityCurrency', sch, bOCs);
+                    system.debug('@@@@@ jobId from Schedular Class: '+jobID);
+                }
+            }
+        }
+    }catch(exception ex){
+        system.debug('@@@@ ex.getLineNumber: '+ex.getLineNumber());
+        system.debug('@@@@ ex.getLineNumber: '+ex.getMessage());
+    }
+}
+
+======================================================Apex Schedular Class===============================================
+
+public class BatchOpportunityCurrencyScheduler implements Schedulable {
+    
+    public void execute(SchedulableContext SC){
+        
+        BatchOpportunityCurrency btOp = new BatchOpportunityCurrency();
+        Database.executeBatch(btOp, 2);
+        
+    }
+
+}
+
+=====================================================Apex Batch Class=========================================================
+
+public class BatchOpportunityCurrency implements Database.Batchable<Sobject>, Database.Stateful{
+    
+    integer RecordProcessed=0;
+    integer RecordFailed=0;
+    list<Opportunity> lstOpPr= new list<Opportunity>();
+    
+    //start method
+    public Database.QueryLocator start(Database.BatchableContext bc){
+        
+        return database.getQueryLocator('select Id, Multi_currecy__c, USD__c from Opportunity');
+        
+    }
+    
+    //execute method
+    public void execute(Database.BatchableContext bc, list<Opportunity>records){
+        list<Opportunity> lstOpp= new list<Opportunity>();
+        for(Opportunity op:records){
+            string USDCurr = string.ValueOf(op.Multi_currecy__c);
+            string USDrate= USDCurr.substringAfter('USD');
+            string USDfRate =USDrate.SubStringBefore(')');
+            string FinalUSD=USDfRate;
+            op.USD__c=FinalUSD;
+            if(op.USD__c!=Null && op.USD__c!=''){
+                RecordProcessed=RecordProcessed+1;
+                lstOpPr.add(op);
+                lstOpp.add(op);
+            }
+            else{
+                RecordFailed=RecordFailed+1; 
+            }}
+        update lstOpp;
+       
+    }
+    
+    //finish method
+    public void finish (Database.BatchableContext bc){
+        AsyncApexJob job=[SELECT Id, CreatedDate, CreatedById, JobType, ApexClassId, Status, JobItemsProcessed, 
+                          TotalJobItems, NumberOfErrors, CompletedDate, MethodName, 
+                          ExtendedStatus FROM AsyncApexJob where Id=:bc.getJobId()] ;
+        system.debug('@@@@ JobId: '+bc.getJobId());
+        system.debug('@@@@ job: '+job);
+        system.debug('@@@@ Records processed: '+RecordProcessed);
+        system.debug('@@@@ Records failed: '+RecordFailed);
+        system.debug('@@@@ lstOpPr: '+lstOpPr);
+        system.debug('@@@@ lstOpPr size: '+lstOpPr.size());
+        
+    }
+    
+}
+
+===============================================================Test Class===============================================================
+
+@isTest
+public class TestBatchOpportunityCurrency {
+    
+    @TestSetUp public static void CreateData(){
+        try{
+            Opportunity opp = new Opportunity();
+            opp.Name='testOp';
+            opp.CloseDate=system.today();
+            opp.StageName='Prospecting';
+            opp.Multi_currecy__c='AUD 20,930.00 (USD 32,11.90)';
+            insert opp;
+        }catch(exception ex){}
+    }
+    
+    @isTest public static void TestMethod1(){
+        try{
+            Opportunity op=[select Id, Name,CloseDate,StageName,Multi_currecy__c,USD__c from Opportunity Limit 1];
+            test.startTest();
+            op.StageName='Qualification';
+            update op;
+            BatchOpportunityCurrency bc = new BatchOpportunityCurrency();
+            Database.executebatch(bc);
+            //update op;
+            system.assertEquals(op.StageName,'Qualification');
+            test.stopTest();
+        }catch(exception ex){
+            
+        }}
+    
+    @isTest public static void TestMethod2(){
+        try{
+            Opportunity op=[select Id, Name,CloseDate,StageName,Multi_currecy__c,USD__c from Opportunity Limit 1];
+            test.startTest();
+            op.StageName='Qualification';
+            op.Multi_currecy__c='AUD 20,930.00 (EUD 32,11.90)';
+            update op;
+            BatchOpportunityCurrency bc = new BatchOpportunityCurrency();
+            Database.executebatch(bc);
+            //update op;
+            system.assertEquals(op.StageName,'Qualification');
+            test.stopTest();
+        }catch(exception ex){
+            
+        }  
+    }
+    
+    //this method will be specific for covering Apex Schedular Class
+    @isTest public static void TestMethod3(){
+        
+        Test.startTest();
+        BatchOpportunityCurrencyScheduler bocs = new BatchOpportunityCurrencyScheduler();
+        string sch='1 12 6 2 11 ? 2020';
+        system.schedule('Test BatchOpportunityCurrency', sch, bocs);  //1st parameter will be just for test purpose
+        Test.stopTest();
+    }
+}
