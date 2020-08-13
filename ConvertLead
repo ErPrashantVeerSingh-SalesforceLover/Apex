@@ -1,0 +1,44 @@
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Trigger<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+trigger leadConversation on Lead (after update) {
+    try{
+        list<Id> lstId= new list<Id>();
+        if(trigger.isExecuting && trigger.isAfter && trigger.isUpdate){
+            for(Lead le:trigger.new){
+                if(le.Status!=trigger.oldmap.get(le.Id).Status){
+                    lstId.add(le.Id);
+                }
+                if(lstId.size()>0){
+                    SampleLeadConversion.PerformingConversion(lstId);
+                }
+            }
+            
+        }}catch(DmlException e) {
+            System.debug('The following exception has occurred: ' + e.getMessage());
+            system.debug('@@@@:'+e.getLineNumber());
+        }
+    
+}
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Trigger Handler<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+public class SampleLeadConversion {
+    
+    public static void PerformingConversion(list<Id> lstId){
+        try{
+            Database.LeadConvert lc = new database.LeadConvert();
+            for(Id le:lstId)
+                lc.setLeadId(le);
+            system.debug('@@@@ lc:'+lc);
+            LeadStatus convertStatus = [SELECT Id, MasterLabel FROM LeadStatus WHERE IsConverted=true Limit 49999];
+            lc.setConvertedStatus(convertStatus.MasterLabel);
+            
+            Database.LeadConvertResult lcr = Database.convertLead(lc);
+            System.assert(lcr.isSuccess());
+        }catch(exception ex){
+            system.debug('@@@@ GetMessage: ' +ex.getMessage());
+            system.debug('@@@@ GetLineNumber:' +ex.getLineNumber());
+        }
+        
+    }
+}
