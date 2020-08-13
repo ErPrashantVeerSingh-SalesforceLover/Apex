@@ -42,3 +42,31 @@ public class SampleLeadConversion {
         
     }
 }
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Test Class<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@isTest
+public class TestConversion {
+    
+    @TestSetUp public static void CreateTestData(){
+        try{
+            Lead le= new Lead();
+            le.LastName='TestName';
+            le.Company='TestCompany';
+            le.Status='Working - Contacted';
+            insert le;
+        }catch(exception ex){
+            system.debug('@@@@ getMessage: '+ex.getMessage());
+        }
+    }
+    
+    @isTest public static void TestMethod1(){
+        try{
+            Lead le=[select Id, Status, Company, LastName from Lead Limit 1];
+            test.startTest();
+            le.Status='Open - Not Contacted';
+            update le;
+            test.StopTest();
+        }catch(exception ex){
+            system.debug('@@@@ GetMessage: '+ex.getMessage());
+        }}
+}
