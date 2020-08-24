@@ -14,7 +14,7 @@ public class University_Student_Wrapper {
         st.Age=18;
         
         Student st1 = new Student();
-        st1.Name='Maj Suresh D';
+        st1.Name='Suresh D';
         st1.Age=18;
         
         list<Student> lststud = new list<Student>();
@@ -72,7 +72,7 @@ public class University_Student_Wrapper {
         st.Age=StAge;
         
         Student stu = new Student();
-        stu.Name='Wng Cmd. Sainger';
+        stu.Name='Senger';
         stu.Age=28;
         
         lstStud.add(st);
@@ -94,7 +94,7 @@ public class University_Student_Wrapper {
     
 }
 
-=====================================================Anonymous Code Block======================================================================
+===============================================Anonymonous code block=========================================================
 
 //calling 1st constructor
 University_Student_Wrapper  uni = new University_Student_Wrapper();
@@ -110,8 +110,8 @@ univer.AssignValue('Prashant Singh',4,'salesforce.com',26);
 University_Student_Wrapper univers= new University_Student_Wrapper();
 univers.StoreMultipleValues('Prashant Veer Singh',4,'salesforce.com',28);
 
+===================================Test Class===============================================================================
 
-====================================================Test Class==================================================================================
 @isTest
 public class Test_University_Student_Wrapper {
     
