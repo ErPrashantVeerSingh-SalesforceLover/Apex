@@ -109,3 +109,51 @@ univer.AssignValue('Prashant Singh',4,'salesforce.com',26);
 //calling 2nd method, and on call of this non-parameterized constructor will be called again
 University_Student_Wrapper univers= new University_Student_Wrapper();
 univers.StoreMultipleValues('Prashant Veer Singh',4,'salesforce.com',28);
+
+
+====================================================Test Class==================================================================================
+@isTest
+public class Test_University_Student_Wrapper {
+    
+    @TestSetUp
+    public static void CreateData(){
+        University_Student_Wrapper uni = new University_Student_Wrapper();
+        uni.course='EME';
+        uni.duration=12;
+        
+        //making data of wrapper class
+        University_Student_Wrapper.Student unis = new University_Student_Wrapper.Student();
+        unis.Name='Maj Suresh';
+        unis.Age=28;
+        
+    }
+    
+    //for non-parameterized constructor
+    @isTest
+    public static void TestMethod1(){
+        test.startTest();
+        University_Student_Wrapper uni = new University_Student_Wrapper();
+        system.assertEquals('Electronics', uni.course);
+        test.stopTest();
+    }
+    
+    //for parameterized constructor
+    @isTest
+    public static void TestMethod2(){
+        test.startTest();
+        University_Student_Wrapper uni = new University_Student_Wrapper('EME',12,'Mr. Prashant',28);
+        uni.StoreMultipleValues('EME',12,'Mr. Prashant',28);  //calling last method of class
+        system.assertEquals('EME', uni.course);
+        test.stopTest();   
+    }
+    
+    //test method for 1st method. Don't 
+    @isTest
+    public static void TestMethod3(){
+        test.startTest();
+		University_Student_Wrapper univ = new University_Student_Wrapper();
+		univ.AssignValue('EME',12,'Mr. Prashant',28);
+		system.assertEquals('EME',univ.course);
+		test.stopTest();
+    }
+}
