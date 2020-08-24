@@ -1,0 +1,91 @@
+public class University_Student_Wrapper {
+    
+    public string course;
+    public integer duration;
+    public list<Student> lststd;
+    
+    //this is a constructor and as we have object of class, constructor will be fired immediately
+    public University_Student_Wrapper(){
+        course='Electronics';
+        duration =4;
+        
+        Student st = new Student();
+        st.Name='Ram Prakash';
+        st.Age=18;
+        
+        Student st1 = new Student();
+        st1.Name='Maj Suresh D';
+        st1.Age=18;
+        
+        list<Student> lststud = new list<Student>();
+        lststud.add(st);
+        lststud.add(st1);
+        system.debug('@@@@ Course: '+course);
+        system.debug('@@@@ duration: '+duration);
+        system.debug('@@@@ Name: '+st.Name);
+        system.debug('@@@@ Age: '+st.Age);
+        system.debug('@@@@ lststud: '+lststud);
+        
+    }
+    
+    //parameterized constructor
+    public University_Student_Wrapper(string courseName, Integer courseDuration, string studentName, Integer StudentAge){
+        
+        this.course=courseName;
+        this.duration=courseDuration;
+        Student stde= new Student();
+        stde.Name=studentName;
+        stde.Age=StudentAge;
+        system.debug('## Course: '+course);
+        system.debug('## duration: '+duration);
+        system.debug('## Name: '+stde.Name);
+        system.debug('## Age: '+stde.Age);
+        
+    }
+    
+    //assigning value through a method
+    public void AssignValue(string CrName, Integer CrDuration, string StName, Integer StAge){
+        
+        this.course=CrName;
+        this.duration=CrDuration;
+        
+        Student st = new Student();
+        st.Name=StName;
+        st.Age=StAge;
+        system.debug('&& Course: '+course);
+        system.debug('&& duration: '+duration);
+        system.debug('&& Name: '+st.Name);
+        system.debug('&& Age: '+st.Age);
+    }
+    
+    //assigning value through a method and storing multiple values
+    public void StoreMultipleValues(string CrName, Integer CrDuration, string StName, Integer StAge){
+        list<Student> lstStud = new list<Student>();
+        this.course=CrName;
+        this.duration=CrDuration;
+        
+        Student st = new Student();
+        st.Name=StName;
+        st.Age=StAge;
+        
+        Student stu = new Student();
+        stu.Name='Wng Cmd. Sainger';
+        stu.Age=28;
+        
+        lstStud.add(st);
+        lstStud.add(stu);
+        system.debug('$$ Course: '+course);
+        system.debug('$$ duration: '+duration);
+        system.debug('$$ Name: '+st.Name);
+        system.debug('$$ Age: '+st.Age);
+        system.debug('$$ lstStud: '+lstStud);
+        
+    }
+    
+    public class Student{
+        
+        public string Name;
+        public Integer Age;
+    }
+    
+}
