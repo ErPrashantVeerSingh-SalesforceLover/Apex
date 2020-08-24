@@ -1,0 +1,66 @@
+public class University_Student_Wrapper {
+    
+    public string course;
+    public integer duration;
+    public Student std;
+    
+    //this is a constructor and as we have object of class, constructor will be fired immediately
+    public University_Student_Wrapper(){
+        course='Electronics';
+        duration =4;
+        
+        Student st = new Student();
+        st.Name='Ram Prakash';
+        st.Age=18;
+        
+        system.debug('@@@@ Course: '+course);
+        system.debug('@@@@ duration: '+duration);
+        system.debug('@@@@ Name: '+st.Name);
+        system.debug('@@@@ Age: '+st.Age);
+        
+    }
+    
+    //parameterized constructor
+    public University_Student_Wrapper(string courseName, Integer courseDuration, string studentName, Integer StudentAge){
+        
+        this.course=courseName;
+        this.duration=courseDuration;
+        Student stde= new Student();
+        stde.Name=studentName;
+        stde.Age=StudentAge;
+        system.debug('@@@@ Course: '+course);
+        system.debug('@@@@ duration: '+duration);
+        system.debug('@@@@ Name: '+stde.Name);
+        system.debug('@@@@ Age: '+stde.Age);
+        
+    }
+    
+    //assigning value through a method
+    public void AssignValue(string CrName, Integer CrDuration, string StName, Integer StAge){
+        
+        this.course=CrName;
+        this.duration=CrDuration;
+        
+        Student st = new Student();
+        st.Name=StName;
+        st.Age=StAge;
+        system.debug('@@@@ Course: '+course);
+        system.debug('@@@@ duration: '+duration);
+        system.debug('@@@@ Name: '+st.Name);
+        system.debug('@@@@ Age: '+st.Age);
+    }
+    
+    public class Student{
+        
+        public string Name;
+        public Integer Age;
+    }
+    
+}
+
+
+===========================================================Anonymous Code block=========================================================================
+University_Student_Wrapper  uni = new University_Student_Wrapper();
+University_Student_Wrapper  univ = new University_Student_Wrapper('Prashant',2,'salesforce',32);
+University_Student_Wrapper univer= new University_Student_Wrapper();
+univer.AssignValue('Prashant Singh',4,'salesforce.com',31);
