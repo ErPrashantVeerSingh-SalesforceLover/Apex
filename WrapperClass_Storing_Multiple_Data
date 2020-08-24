@@ -20,6 +20,7 @@ public class University_Student_Wrapper {
         list<Student> lststud = new list<Student>();
         lststud.add(st);
         lststud.add(st1);
+        system.debug('Calling non-parameterized constructor');
         system.debug('@@@@ Course: '+course);
         system.debug('@@@@ duration: '+duration);
         system.debug('@@@@ Name: '+st.Name);
@@ -36,6 +37,7 @@ public class University_Student_Wrapper {
         Student stde= new Student();
         stde.Name=studentName;
         stde.Age=StudentAge;
+        system.debug('Calling parameterized constructor');
         system.debug('## Course: '+course);
         system.debug('## duration: '+duration);
         system.debug('## Name: '+stde.Name);
@@ -52,6 +54,7 @@ public class University_Student_Wrapper {
         Student st = new Student();
         st.Name=StName;
         st.Age=StAge;
+        system.debug('Calling 1st method');
         system.debug('&& Course: '+course);
         system.debug('&& duration: '+duration);
         system.debug('&& Name: '+st.Name);
@@ -74,6 +77,7 @@ public class University_Student_Wrapper {
         
         lstStud.add(st);
         lstStud.add(stu);
+        system.debug('Calling 2nd method');
         system.debug('$$ Course: '+course);
         system.debug('$$ duration: '+duration);
         system.debug('$$ Name: '+st.Name);
@@ -89,3 +93,19 @@ public class University_Student_Wrapper {
     }
     
 }
+
+=====================================================Anonymous Code Block======================================================================
+
+//calling 1st constructor
+University_Student_Wrapper  uni = new University_Student_Wrapper();
+
+//calling 2nd constructor, parameterized
+University_Student_Wrapper  univ = new University_Student_Wrapper('Prashant',2,'salesforce',27);
+
+//calling 1st method, and on call of this non-parameterized constructor will be called again
+University_Student_Wrapper univer= new University_Student_Wrapper();
+univer.AssignValue('Prashant Singh',4,'salesforce.com',26);
+
+//calling 2nd method, and on call of this non-parameterized constructor will be called again
+University_Student_Wrapper univers= new University_Student_Wrapper();
+univers.StoreMultipleValues('Prashant Veer Singh',4,'salesforce.com',28);
