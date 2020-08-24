@@ -1,0 +1,32 @@
+public class Wrapper_SelectedValue {
+    
+    public list<Wrap_Account> lstWrapAcc;
+    
+    public Wrapper_SelectedValue(){
+        list<Account> lstAcc = new list<Account>();
+        list<Wrap_Account> lstWrapAcct = new list<Wrap_Account>();
+        lstAcc=[select Id, Name, Description from Account];
+        for(Account ac:lstAcc){
+            
+            //creating instance as we are assigning value
+            Wrap_Account wapAcc = new Wrap_Account();
+            if(ac.Description!=Null){
+                wapAcc.acc=ac;
+                wapAcc.check=True;
+            }
+            else{
+                wapAcc.acc=ac;
+                wapAcc.check=False;
+            }
+        lstWrapAcct.add(wapAcc);
+        }
+        system.debug('@@@@ Check and uncheck account: '+lstWrapAcct);
+    }
+    
+    
+    
+    public class Wrap_Account{
+        public Account acc;
+        public Boolean check;
+    }
+}
