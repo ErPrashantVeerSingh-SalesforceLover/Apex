@@ -37,3 +37,36 @@ trigger CountContact on Contact (after insert, after update, after delete, after
         }
     
 }
+
+
+============================================without using Aggregate=============================================================
+
+trigger CountContact on Contact (after insert, after update, after delete, after undelete) {
+    
+    set<Id> storeAccID = new set<Id>();
+    list<Account> lstAcct= new list<Account>();
+    if(trigger.isExecuting && trigger.isAfter){
+        
+        if(trigger.isDelete){
+            for(Contact ct:trigger.old){
+                storeAccID.add(ct.AccountId);
+            }
+        }else{
+            for(Contact ct:trigger.new){
+                
+                storeAccID.add(ct.AccountId);
+                
+            }
+        }
+        if(storeAccID.size()>0){
+            list<Account> lstAc=[select Id,(select Id from Contacts) from Account where Id=:storeAccID];
+            for(Account ac:lstAc){
+                Integer ContSize= (Integer)ac.Contacts.size();
+                ac.Count_Contact__c=ContSize;
+                lstAcct.add(ac);
+            }
+        }
+        update lstAcct;
+    }
+    
+}
