@@ -1,0 +1,39 @@
+trigger CountContact on Contact (after insert, after update, after delete, after undelete) {
+    
+    set<Id> setAccountid = new set<Id>();
+    list<Account> lstAc = new list<Account>();
+    try{
+        if(trigger.isExecuting && trigger.isAfter){
+            if(trigger.isDelete){
+                for(Contact ct:trigger.old){
+                    setAccountid.add(ct.AccountId);
+                }
+            }
+            else{
+                for(Contact ct:trigger.new){
+                    setAccountid.add(ct.AccountId);
+                }
+            }
+            
+            AggregateResult[] queryContact=[select Count(Id) cti, AccountId aci from Contact where AccountID=:setAccountid
+                                            GROUP BY AccountId];
+            
+            
+            
+            if(queryContact.size()>0){
+                //now use foreach loop
+                for(AggregateResult ar:queryContact){
+                    Id AccId=(Id)ar.get('aci');
+                    Integer count = (INTEGER)ar.get('cti');
+                    Account act = new Account(Id=AccId);
+                    act.Count_Contact__c=count;
+                    lstAc.add(act);
+                }
+            }
+            update lstAc;
+        }}catch(exception ex){
+            system.debug('@@@@ getLineNumber: '+ex.getLineNumber());
+            system.debug('@@@@ getMessage: '+ex.getMessage());
+        }
+    
+}
