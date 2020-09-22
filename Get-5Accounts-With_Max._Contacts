@@ -1,0 +1,23 @@
+public class CheckMaxcount{
+    
+    public static void ProcessToMax(){
+        
+        map<String,Integer> mapStoreAgg = new map<String,Integer>();
+        
+        list<AggregateResult> lstAgg= new list<AggregateResult>();
+        lstAgg=[select Count(Id) ct,AccountId acId from Contact Group By AccountId ORDER By Count(Id) DESC Limit 5];
+        
+        if(lstAgg.size()>0){
+            
+            for(AggregateResult agg:lstAgg){
+                Id AccId=(Id)agg.get('acId');
+                Integer count = (INTEGER)agg.get('ct');
+                mapStoreAgg.put(AccId,count);
+            }
+        }
+        if(mapStoreAgg.size()>0){
+            system.debug('@@@@ mapStoreAgg: '+mapStoreAgg);
+        }
+    }
+    
+}
