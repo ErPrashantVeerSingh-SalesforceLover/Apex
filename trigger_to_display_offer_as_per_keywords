@@ -54,3 +54,50 @@ trigger DisplayOffer on Accounts_Social_Media_Monitoring__c (before insert){
     update lstSMMToUpdate;
   }
 }
+
+
+=====================================================================================================================
+trigger DisplayOffer on Accounts_Social_Media_Monitoring__c (before insert) 
+{
+   list<Keyword_config__c> lstKeywordConf = [select Name, Keywords__c from Keyword_config__c Order by Name Asc];
+    
+    for(Accounts_Social_Media_Monitoring__c objSMM : trigger.new){
+		
+		Set<String> setProdtoAdd = new Set<String>();
+		
+		if(lstKeywordConf<>null && lstKeywordConf.size()>0){
+			
+			for(Keyword_config__c objKW : lstKeywordConf){
+				
+				list<String> lstKeywords = new list<String>();				
+				if(objKW.Keywords__c.contains(',')){
+					lstKeywords = objKW.Keywords__c.split(',');
+				}
+				else{
+					lstKeywords.add(objKW.Keywords__c);
+				}
+				
+				if(lstKeywords<>null && lstKeywords.size()>0){
+					for(String kw : lstKeywords){
+						if(objSMM.Tweet_Text__c.containsIgnoreCase(kw)){
+							setProdtoAdd.add(objKW.Name);
+							/* if(objSMM.Products_to_be_offered__c == null){
+								objSMM.Products_to_be_offered__c = objKW.Name;
+							}
+							else{
+								objSMM.Products_to_be_offered__c = objSMM.Products_to_be_offered__c + ',' + objKW.Name;
+							}
+							System.debug('objSMM.Products_to_be_offered__c'+objSMM.Products_to_be_offered__c); */							
+						}						
+					}
+				}
+				
+			}
+			
+			if(setProdtoAdd<>null && setProdtoAdd.size()>0){
+				String tempProd = String.valueOf(setProdtoAdd).remove('{');
+				objSMM.Products_to_be_offered__c = tempProd.remove('}');
+			}
+		}
+	}
+}
