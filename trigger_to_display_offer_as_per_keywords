@@ -1,0 +1,56 @@
+trigger DisplayOffer on Accounts_Social_Media_Monitoring__c (before insert){
+  
+   list<Offer__c> lstOffer = [SELECT Id, Name, Keyword__c FROM Offer__c ORDER BY Name Asc];
+   list<Accounts_Social_Media_Monitoring__c> lstSMMToUpdate = new list<Accounts_Social_Media_Monitoring__c>();
+   Set<String> SetCustomerIds = new Set<String>();
+    
+    for(Accounts_Social_Media_Monitoring__c objSMM : trigger.new){    
+    
+    SetCustomerIds.add(objSMM.Account_ID__c);
+    
+    Set<String> setOfferIdToAdd = new Set<String>();
+    
+    if(lstOffer<>null && lstOffer.size()>0){
+      
+      for(Offer__c objOffer : lstOffer){
+        
+        list<String> lstKeywords = new list<String>();
+        if(objOffer.Keyword__c<>null){
+          if(objOffer.Keyword__c.contains(',')){
+            lstKeywords = objOffer.Keyword__c.split(',');
+          }
+          else{
+            lstKeywords.add(objOffer.Keyword__c);
+          }
+        }        
+        
+        if(lstKeywords<>null && lstKeywords.size()>0){
+          for(String kw : lstKeywords){
+            if(objSMM.Tweet_Text__c.containsIgnoreCase(kw)){
+              setOfferIdToAdd.add(objOffer.Id);
+            }      
+          }
+        }
+        
+      }
+      
+      system.debug('setOfferIdToAdd'+setOfferIdToAdd);
+      
+      if(setOfferIdToAdd<>null && setOfferIdToAdd.size()>0){
+        String tempProd = String.valueOf(setOfferIdToAdd).remove('{');
+        objSMM.Products_to_be_offered__c = tempProd.remove('}').replaceAll( '\\s+', '');
+      }
+    }
+  }
+  
+  /*Removing Older SMM Records(i.e. Old Tweets) TO Be Considered FOR 'OFFERS WEB SERVICE'*/
+  
+  for(Accounts_Social_Media_Monitoring__c objSMMUpdate : [SELECT Id, Account_ID__c, IsAvailable_For_Offer_Web_Service__c FROM Accounts_Social_Media_Monitoring__c WHERE Account_ID__c IN: SetCustomerIds AND Id NOT IN: trigger.new]){
+    objSMMUpdate.IsAvailable_For_Offer_Web_Service__c = False;
+    lstSMMToUpdate.add(objSMMUpdate);
+  }
+  
+  if(lstSMMToUpdate.size()>0){
+    update lstSMMToUpdate;
+  }
+}
