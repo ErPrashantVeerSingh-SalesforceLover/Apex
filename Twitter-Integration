@@ -1,7 +1,5 @@
 /**  
 *    Class Name: TwitterController
-*    Author: Genpact Digital
-*    Date: 03-Nov-2017
 *    Description: Class for calling Twitter API with accountId getting on page load. 
 *    --------
 **/
@@ -142,3 +140,127 @@ insert(lstSMM);
 	
         }   
 }
+
+=====================================================================================================================================================
+/*Get tweets with Screen name- Prashant Singh*/
+
+public class TwitterController 
+{
+
+private ApexPages.StandardController TwitterController ;
+public String sBody{get;set;}
+public String tweets{get;set;}
+public String access_token{get;set;}
+public Account acc{get;set;}
+public TwitterController tc{get; set;}
+public AccountId{get;set;}
+public Account acc1=new Account();
+public list<Account>listacc=new list<Account>();
+public string TwitterUserName{get; set;}
+
+public TwitterController(ApexPages.StandardController controller)
+{
+acc1=[select id, Name from Account where id=:ApexPages.currentPage().getParameters().get('id')];
+acc=new Account();
+AccountId=acc1.name;
+}
+
+public TwitterController(ApexPages.StandardController controller)
+	{
+      
+	String keyencoded = EncodingUtil.urlEncode('CYXp886M6g04xwouOHLYg4UJf','UTF-8');
+	String secretkeyencoded = EncodingUtil.urlEncode('5qC4A3JZDF8you0VtKx95AJqROlXi2oihTkJgVNNsv8pVQ2cjT', 'UTF-8');
+	String sFinal = keyencoded + ':' + secretkeyencoded;
+	Blob headerValue = Blob.valueOf(sFinal);
+	HttpRequest req = new HttpRequest();
+    req.setEndpoint('https://api.twitter.com/oauth2/token');
+    req.setMethod('POST');
+    String authorizationHeader = 'Basic ' + EncodingUtil.base64Encode(headerValue);
+    req.setHeader('Authorization', authorizationHeader);
+    req.setBody('grant_type=client_credentials');
+    Http http = new Http();
+    HTTPResponse res = http.send(req);
+
+    JSONParser parser = JSON.createParser(res.getBody());
+		while(parser.nextToken() != null)
+		{
+			if(parser.getCurrentToken() == JSONToken.FIELD_NAME)
+			{
+				String fieldName = parser.getText();
+				parser.nextToken();
+				if(fieldName == 'access_token')
+				{
+					access_token = parser.getText();
+				}
+
+			}
+		}
+	}
+
+public String gettweetsss()
+	{
+
+  HttpRequest req2 = new HttpRequest();
+	list<Account>accts=new list<Account>();
+	list<Accounts_Social_Media_Monitoring__c> lstSMM=new list<Accounts_Social_Media_Monitoring__c>();
+	map<id,Account> map1=new map<id, Account>();
+	accts=[SELECT Id,Twitter_Id__c, Name FROM Account where Twitter_Id__c!=NULL];
+	for(Account a:accts)
+	{
+        Accounts_Social_Media_Monitoring__c objSMM = new Accounts_Social_Media_Monitoring__c();
+        objSMM.Account_ID__c = a.ID;
+        objSMM.Social_Media_Name__c = a.Twitter_Id__c;
+		//ac.Social_Media_Name__c=map1.get(ac.Account_ID__c).Twitter_Id__c;
+		//list1.add(ac);
+		string v=a.Twitter_Id__c;
+        
+        req2.setEndpoint('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name='+v);
+        req2.setMethod('GET');
+         
+        //Call Bearer token Method
+        String authorizationHeader1 = 'Bearer ' + access_token;
+        req2.setHeader('Authorization', authorizationHeader1);
+         
+        Http http1 = new Http();
+        HTTPResponse res1 = http1.send(req2);
+       
+        tweets = res1.getBody();
+        //system.debug(tweets);
+		String response=res1.getBody();
+		String text='';
+		JSONParser  parser1 = JSON.createParser(response);
+		while (parser1.nextToken() != null) 
+		{
+			if ((parser1.getCurrentToken() == JSONToken.FIELD_NAME))
+			{
+			String fieldName = parser1.getText();
+			parser1.nextToken();
+			String fieldValue=parser1.getText();
+				if(fieldName == 'id_str') 
+				{ 
+                    system.debug('TW ID: ' + parser1.getText());
+                    objSMM.Tweet_id__c = parser1.getText();
+					parser1.nextToken();
+      				if(parser1.getText()=='text')
+					{
+						parser1.nextToken();
+						text= parser1.getText();
+						system.debug('TW: ' + text);
+                        objSMM.Tweet_Text__c = parser1.getText();
+						break;
+					}
+				}
+			}
+		
+  	}
+    list<Accounts_Social_Media_Monitoring__c> lst = [select ID from Accounts_Social_Media_Monitoring__c where Tweet_id__c = :objSMM.Tweet_id__c];
+    system.debug('Found records: ' + lst.Size());
+    if(lst.Size() == 0)
+    {
+       system.debug('adding record to list');
+       lstSMM.add(objSMM);
+    }
+ }
+system.debug('inserting records: ' + lstSMM.Size());
+insert(lstSMM);
+	}
