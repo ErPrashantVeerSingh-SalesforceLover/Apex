@@ -1,0 +1,78 @@
+                                            ============step 1 Create test data factory========================
+                                  
+@isTest
+public class TestDataFactory {
+
+    //Account object Test data
+    public static list<Account> CreateAccData(Integer NumAcc){
+        list<Account> lstAcc = new list<Account>();
+        for(Integer i=0; i<NumAcc; i++){
+            Account acc = new Account();
+            acc.Name='TestDataFactoryAccount'+i;
+            acc.Description='TestDataFactoryAccount'+i+'Description';
+            lstAcc.add(acc);
+            upsert lstAcc;
+            system.debug('@@@@ Test Data Factory Account: '+lstAcc);
+        }
+        return lstAcc;
+    }
+    
+    //Lead Object Test Data
+    public static list<Lead> CreateLeadData(Integer NumLead){
+        list<Lead> lstLe = new list<Lead>();
+        try{
+            for(Integer i=0; i<=NumLead; i++){
+                Lead le = new Lead();
+                le.LastName='TestDataFacLead'+i;
+                le.Company='TestDataLe'+i+'C';
+                le.Status='Working - Contacted';
+                le.Fax='10101010';
+                lstLe.add(le);
+                upsert lstLe;
+            }
+        }catch(exception ex){
+            
+        }
+        return lstLe;
+    }
+    
+    //Opportunity Object Test Data
+    public static list<Opportunity> CreateOppData(Integer NumOpp){
+        list<Opportunity> lstOpp= new list<Opportunity>();
+        
+        for(Integer i=0; i<=NumOpp; i++){
+            Opportunity opp = new Opportunity();
+            opp.Name='TestDataFacOpp'+i;
+            opp.StageName='Qualification';
+            opp.CloseDate=system.today();
+            opp.Multi_currecy__c='(USD 32,11.90)';
+            lstOpp.add(opp);
+            upsert lstOpp;
+        }
+        return lstOpp;
+    }
+}
+
+
+                                             ==========step 2      test class======================
+                                                          a. For apex batch class
+   
+   @isTest
+public class Test_BatchOpportunityCurrency {
+
+    @isTest
+    public static void TestMethod1(){
+        
+        list<Opportunity> lstOpp = new list<Opportunity>();
+        //Calling Test data factory's method to get data created in the class
+        lstOpp=TestDataFactory.CreateOppData(10);
+        
+        test.startTest();
+        BatchOpportunityCurrency btOpCu= new BatchOpportunityCurrency();
+        Database.executebatch(btOpCu); 
+        test.stopTest();
+    }
+}
+
+                                             
+                                             
