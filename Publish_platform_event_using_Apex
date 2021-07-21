@@ -43,3 +43,49 @@ trigger AccPubTrigger on Account(after insert, after update){
     
     
 }
+
+
+
+
+===================================bulkified version of the above code===========================================
+
+
+trigger AccPubTrigger on Account(after insert, after update){
+    
+    try{
+        if(trigger.isExecuting && trigger.isAfter &&(trigger.isInsert || trigger.isUpdate)){
+            
+            list<PublishPlatformEvt_Apex__e>  lstppevt = new list<PublishPlatformEvt_Apex__e>();
+            for(Account acc:trigger.new){
+                
+                PublishPlatformEvt_Apex__e ppevt = new PublishPlatformEvt_Apex__e();
+                
+                ppevt.IsSuccess__c= True;
+                ppevt.Put_Acc_Description__c=acc.Name + '  '+acc.Description +'  '+'global sfdc professionals';
+                
+                lstppevt.add(ppevt);
+            }
+            list<Database.SaveResult> lstdr= eventbus.publish(lstppevt);
+            for(Database.SaveResult dr:lstdr){
+                
+                if(dr.isSuccess()==True){
+                    system.debug('publish platform event');
+                }
+                else if(dr.isSuccess()==False){
+                    for(Database.Error err: dr.getErrors()){
+                        system.debug('@@@@ Error returned: '+err.getStatusCode()+ ' '+err.getMessage());
+                    }
+                }
+            }
+        }
+    }catch(exception ex){
+        
+        system.debug('@@@@ exception raise!!!!: '+ex.getMessage());
+        system.debug('@@@@ exception raise at line!!!!: '+ex.getLineNumber());
+    }
+    
+}              
+
+
+
+
