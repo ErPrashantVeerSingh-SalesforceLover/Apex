@@ -1,0 +1,30 @@
+/**** Publish platform event using apex method:
+example 1:
+*********/
+
+
+trigger AccPubTrigger on Account(after insert, after update){
+    
+    try{
+        if(trigger.isExecuting && trigger.isAfter &&(trigger.isInsert || trigger.isUpdate)){
+            
+            for(Account acc:trigger.new){
+                
+                
+                //create instance of platform event
+                PublishPlatformEvt_Apex__e ppevt = new PublishPlatformEvt_Apex__e();
+                
+                ppevt.IsSuccess__c= True;
+                ppevt.Put_Acc_Description__c=acc.Name + '  '+acc.Description +'  '+'global sfdc professionals';
+                
+                system.debug('@@@@ publish platform event: '+ppevt);
+            }
+            
+            
+        }
+    }catch(exception ex){
+        
+        system.debug('The exception raised:' +ex.getmessage());
+        system.debug('The exception raised:' +ex.getLineNumber());
+    }
+}
