@@ -11,13 +11,24 @@ trigger AccPubTrigger on Account(after insert, after update){
             for(Account acc:trigger.new){
                 
                 
-                //create instance of platform event
+                //create instance of platform event and since 
                 PublishPlatformEvt_Apex__e ppevt = new PublishPlatformEvt_Apex__e();
                 
                 ppevt.IsSuccess__c= True;
                 ppevt.Put_Acc_Description__c=acc.Name + '  '+acc.Description +'  '+'global sfdc professionals';
+                //passing instance into method
+                database.SaveResult dr=eventbus.publish(ppevt);
+                if(dr.isSuccess()==True){
+                    system.debug('@@@@ publish platform event: '+ppevt);  
+                }else if(dr.isSuccess()==False){
+                    for(Database.Error err: dr.getErrors()){
+                        system.debug('This has error can not publish: '+err.getStatusCode()+' '+
+                                     err.getMessage());
+                    }
+                    
+                }
                 
-                system.debug('@@@@ publish platform event: '+ppevt);
+                
             }
             
             
@@ -27,4 +38,8 @@ trigger AccPubTrigger on Account(after insert, after update){
         system.debug('The exception raised:' +ex.getmessage());
         system.debug('The exception raised:' +ex.getLineNumber());
     }
+    
+    
+    
+    
 }
