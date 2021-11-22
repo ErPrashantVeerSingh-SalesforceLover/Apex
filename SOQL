@@ -1,0 +1,44 @@
+                                                              SOQL
+	Salesforce object query language
+    1. developer console
+    2. workbench
+    3. data loader	
+	
+	
+	
+1. Basic structure of SOQL:
+   Object: Account
+   Id
+   Query:
+   select Id from Account
+   select Id, Active__c from Account     // always use field name or API
+   
+  Note: another way/method to open object from developer console: Ctrl+ Shift+O
+  
+2. Where clause:
+   select Id, Active__c from Account Where Active__c ='Yes'
+   select Id, Active__c,TickerSymbol from Account Where TickerSymbol='EDGE\'s'      //when you have the value in field like Ram's pen; EDGE's com
+   
+   Note: where clause can't exceed more than 4000
+         Total characters in SOQL query can be 20,000
+		 
+3.  Null operator: both string as well number
+                 a. Active__c is picklist (text/string value)
+	select Id, Active__c from Account where Active__c =NULL     // to get records with blank value field
+	select Id, Active__c from Account where Active__c !=NULL    // to get record with some value in the field
+	
+	             
+                b. Phone_Number__c is number data type
+    select Id, Phone_Number__c from Account Where Phone_Number__c=Null            // will fetch all account with field Phone_Number__c having no values 
+	select Id, Phone_Number__c from Account Where Phone_Number__c!=Null           // will fetch all account with field Phone_Number__c having some values
+	
+4. Boolean field: to identify boolean values we use True and False
+                  Check box field
+    
+   SELECT Id, Hot_Account__c FROM Account where Hot_Account__c =TRUE             // fetch all accounts with Hot_Account__c is checked
+   SELECT Id, Hot_Account__c FROM Account where Hot_Account__c =False            // fetch all accounts with Hot_Account__c is unchecked
+   
+5. Operators:
+   =     equal           
+   !     not
+   !=    not equal
