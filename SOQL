@@ -1,5 +1,4 @@
-                                                              SOQL
-	Salesforce object query language
+Salesforce object query language
     1. developer console
     2. workbench
     3. data loader	
@@ -42,3 +41,63 @@
    =     equal           
    !     not
    !=    not equal
+   <     Less Than
+   <=    Less than eual
+   >     greater
+   >=    greater than equal
+   Like  fuzzy    logic
+         %c%  =   data which have c in betweeen
+		 %c   =   data which will have c in last
+		 c%   =   data which will have c in begining
+   OR 
+   IN
+   NOT
+   AND
+   
+6. Polymorphic: 
+   Task and Event
+   
+   select Id, Who.ID, What.ID from Task                                         //To fetch Parent Object Id from Task
+   select Id, Who.ID,Who.Type, What.ID, What.Type from Task                     //To fetch Parent Object Id & Name from Task
+   select Id, Who.ID,Who.Type, What.ID, What.Type from Event
+   
+   Who = Lead and Contact
+   What = Account, Opportunity etc.
+   
+   Parent.ID  = Who.Id
+   
+   
+   
+   select Id, Who.ID,Who.Type, What.ID, What.Type from Event
+   
+7. Fuzzy logic (using Like Operator):
+   select Id, Name from Account Where Name Like '%c'      
+   
+8. Using OR Opeartor:
+   select Id, Name from Account Where Name = 'Castic' OR Name = 'Sample Part Acc' OR Name = 'Dickenson plc'
+   
+9. Using IN opeator:
+   select Id, Name from Account Where Name IN('Castic','Sample Part Acc','Dickenson plc')
+   select Id, Name from Account Where Name NOT IN('Castic','Sample Part Acc','Dickenson plc')
+
+10. AND
+    select Id, Name, Phone from Account Where Name ='Castic' AND Phone=NULL
+	select Id, Name, Phone from Account Where Name ='Castic' AND Phone!=NULL 
+	
+11. ORDER BY==> giving some sequence
+    By default ASC AND Nulls First
+	ORDER BY Syntax:  Where FieldName/API ORDER BY (keyword to order)
+	
+	select Id, Name, Phone from Account ORDER BY Phone NULLS LAST                   // using NULLS LAST 
+	select Id, Name, Phone from Account ORDER BY Phone NULLS FIRST
+    
+	select Id, Name, Phone from Account ORDER BY Phone DESC                        // DESC
+	select Id, Name, Phone from Account ORDER BY Phone ASC                         // ASC           
+	
+	Here, we are referring Phone field therefore, our by default property i.e. "By default ASC AND Nulls First" will be maintained in all 4 queries writteen above
+	
+12. Limit 
+    Limit 49999 (index starts 0) 50K
+	
+	select Id, Name, Phone from Account Limit 5                                       //Limit without where
+	select Id, Name, Phone from Account Where Phone!=NULL Limit 5                     //Limit with Where
