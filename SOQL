@@ -101,3 +101,31 @@ Salesforce object query language
 	
 	select Id, Name, Phone from Account Limit 5                                       //Limit without where
 	select Id, Name, Phone from Account Where Phone!=NULL Limit 5                     //Limit with Where
+	
+13. Group By:
+    select Count(Id), LeadSource from Lead GROUP BY LeadSource 
+	select LeadSource from Lead GROUP BY LeadSource
+	
+	Aggregate function:
+	1.Count()
+	2.Count_Distinct(): return number of distinct non-null field values matching query condition
+	3.MAX()
+	4.MIN()
+	5.SUM()
+	6.AVG()
+	
+	select Count(Id) from Lead
+	select Count() from Lead
+	SELECT Count(Id) FROM Account Where Name Like 't%'
+	SELECT MAX(CreatedDate) FROM Account
+	SELECT Count(Id), MAX(CreatedDate) FROM Account
+	SELECT Count(Id), MAX(CreatedDate) FROM Account Where Name Like 't%'
+	SELECT Count(Id), Count(CampaignId) FROM Opportunity
+	SELECT Count(Id), CampaignId FROM Opportunity Group By CampaignId Limit 2
+	SELECT Count(Id), Count(CampaignId) FROM Opportunity Group By CampaignId       // non-valid and will give error: Grouped field should not be aggregated: CampaignId
+	You can't use child relationship expressions that uses __r syntx in query using GROUP BY clause
+	SELECT Count(Id), CampaignId FROM Opportunity                    // non-valud query and error is Field must be grouped or aggregated: CampaignId
+    
+	HAVING  =  Where
+	select Count(ID), Count(Name), LeadSource from Lead GROUP BY LeadSource HAVING COUNT(LeadSource)>5
+	select LastName, Account.Name from Contact GROUP BY Account.Name, LastName HAVING Account.Name!='HCL'
