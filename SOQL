@@ -129,3 +129,73 @@ Salesforce object query language
 	HAVING  =  Where
 	select Count(ID), Count(Name), LeadSource from Lead GROUP BY LeadSource HAVING COUNT(LeadSource)>5
 	select LastName, Account.Name from Contact GROUP BY Account.Name, LastName HAVING Account.Name!='HCL'
+	
+	
+14. Dynamic query
+    Let say you want to write a very simple query:
+	select ID, Name, Phone from Account        // static query
+	Dynamic query for above query:
+	
+	list<Sobject> lstSobj = new list<Sobject>();
+    string field1 ='Phone';
+
+    string queryform='select Id,Name,'+field1+' from Account';
+    system.debug('Query formation: '+queryform);
+    lstSobj=Database.query(queryform);
+
+    system.debug('Result of dynamic query: '+lstSobj);
+	
+	
+	
+	Dynamic query with more than 1 fields:
+	list<Sobject> lstSobj = new list<Sobject>();
+     string field1 ='Phone';
+      string field2='Industry';
+      string query='select Id,Name,'+field1+','+field2+' from Account';
+      system.debug('Query formation: '+query);
+      lstSobj=Database.query(query);
+
+      system.debug('Result of dynamic query: '+lstSobj);
+	  
+	  
+	  
+	  Dynamic query with if-else:
+	  list<Sobject> lstSobj = new list<Sobject>();
+      Boolean check=True;
+      if(check==False){                                   // change to True, to execute if block
+      string field1 ='Phone';
+     string field2='Industry';  
+     string query='select Id,Name,'+field1+','+field2+' from Account';
+     system.debug('Query formation: '+query); 
+     lstSobj=Database.query(query);
+     system.debug('Result of dynamic query: '+lstSobj);
+     }
+    else{
+    string field1 ='Rating';
+    string field2='Description'; 
+    string query='select Id,Name,'+field1+','+field2+' from Account';
+   system.debug('Query formation: '+query); 
+   lstSobj=Database.query(query);
+   system.debug('Result of dynamic query: '+lstSobj);
+     }
+
+15. Relationship query:
+    2 types: parent to child  & child to parent
+	
+	Parent to child:
+	select Id,Name,(select Id,Name from Opportunities) From Account
+	select Id,Name,(select Id,Name from Opportunities), (select Id, LastName from Contacts) From Account
+	
+	Custom object:
+	select Id,Name,(select Id,Name from Opportunities), (select Id, LastName from Contacts),(select ID,Account__c from Custom_Objects__r) From Account
+    
+	
+	For standard and customer object: 20
+	
+	Child to parent:
+	select Id, Account.ID, Account.Name from Opportunity
+	standard object: 35
+	custom object: 25
+	access level: 3 e.g. select Id, Account.ID, Account.Name, Opportunity.Account.Owner.Name from Opportunity    (Opportunity.Account.Owner.Name)
+
+	
