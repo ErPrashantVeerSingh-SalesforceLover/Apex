@@ -199,3 +199,64 @@ Salesforce object query language
 	access level: 3 e.g. select Id, Account.ID, Account.Name, Opportunity.Account.Owner.Name from Opportunity    (Opportunity.Account.Owner.Name)
 
 	
+															SOSL
+Salesforce object search language
+globalsfdcprofessionals18@gmail.com
+list<list<Sobject>>: Return type
+SOQL return type is list<Sobject>
+
+Syntax:
+FIND {search_value}                                                         FIND {test}
+                                                                            FIND {globalsfdcprofessionals18@gmail.com}    
+FIND {search_value} RETURNING Sobject                                       FIND {test} RETURNING Account
+FIND {search_value} RETURNING Sobject(field1, field2)                       FIND {test} RETURNING Account(Id, Name, Description, Phone)
+FIND {search_value} RETURNING Sobject(field1, field2),
+                              Sobject2(field1,field2)                       FIND {test} RETURNING Account(Id, Name, Description, Phone), Lead(Id, Status)
+							                                                FIND {test} RETURNING Account(Id, Name, Description, Phone), Lead
+
+IN searchgroup: FIND {search_value} IN searchgroup                          searchGroup contains below option:
+					
+FIND {search_value} IN ALL FIELDS                        					FIND {test} IN ALL FIELDS              //FIELDS = is a keyword
+FIND {search_value} IN Name FIELDS                                          FIND {test} IN Name FIELDS                  
+FIND {search_value} IN Email FIELDS                                         FIND {globalsfdcprofessionals18@gmail.com} IN EMAIL FIELDS
+FIND {search_value} IN Phone FIELDS                                         FIND {212} IN Phone FIELDS			
+
+LIMIT:  optional
+FIND {globalsfdcprofessionals18@gmail.com} IN EMAIL FIELDS Limit 2
+
+WITH SPELL_CORRECTION:        option
+                              WITH SPELL_CORRECTION=false                     //by default = true
+							  FIND {globalsfdcprofEssionals18@gmail.com} IN EMAIL FIELDS WITH SPELL_CORRECTION=false
+							  FIND {globalsfdcprofEssionals18@gmail.com} IN EMAIL FIELDS RETURNING User(Id, Country) WITH SPELL_CORRECTION=false
+							  
+1.  SOSL: returns data from entire org
+    SOQL: returns from a single specific object
+2.  SOSL: query email, text, phone
+    SOQL: query all your fields
+3.  SOSL: can't be use in trigger but can be in class
+    SOQL: can be used in class and trigger as well
+4.  SOSL: can't performed DML operation
+    SOQL: yes, you can perform DML
+5.  SOSL: return fields
+    SOQL: return record
+	
+						Sample class to use SOSL:
+
+public class SOSL_Sample_Class {
+
+    public static void sosllivedemo()
+    {
+        list<list<sobject>> sobjectlist=[FIND 'test' 
+                                         IN ALL FIELDS RETURNING Account(Id, Name, Rating),
+                                        Contact(Id, Name, Email),
+                                        Lead(Id, Name, Email)];
+        list<Account> Accountlist=(list<Account>)sobjectlist.get(0);
+        list<Contact> Contactlist=(list<Contact>)sobjectlist.get(1);
+        list<Lead> Leadlist=(list<Lead>)sobjectlist.get(2);
+        
+        system.debug('@@@@@ Account list: '+Accountlist);
+        system.debug('@@@@@ Contact list: '+Contactlist);
+        system.debug('@@@@@ Lead list: '+Leadlist);
+    }
+}
+							  
