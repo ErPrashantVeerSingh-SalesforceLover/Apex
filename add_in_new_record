@@ -1,0 +1,18 @@
+//add Prashant in each new Record
+
+trigger addPrashant on Account(before insert){
+    
+    list<Account> lstNewAcc = new list<Account>();
+    for(Account acc:trigger.new){
+        
+        acc.Name='Prashant'+acc.name;
+         lstNewAcc.add(acc);
+    }
+    //lstNewAcc.add()
+    system.debug('New Account: '+lstNewAcc);
+    
+    Integer myDMLLimit = Limits.getDMLStatements();
+    Integer myQuery=Limits.getQueries();
+    system.debug('@@@@ myDMLLimit: '+myDMLLimit);
+    system.debug('@@@@ myQuery: '+myQuery);
+}
