@@ -1,0 +1,22 @@
+//delete all Contacts associated with new Account's name
+
+trigger deleteContacts on Account(after insert){
+    
+    list<Contact> lstExistCon = new list<Contact>();
+    map<string, Sobject> mapAcc = new map<string,Sobject>();
+    for(Account ac: trigger.new){
+        mapAcc.put(ac.Name, ac);        
+    }
+    if(mapAcc.size()>0){
+        lstExistCon=[select Id, LastName, Account.Name from Contact where Account.Name=:mapAcc.keySet()];
+        
+    }
+    if(lstExistCon.size()>0){
+        delete lstExistCon;
+    }
+    
+    Integer myDMLLimit = Limits.getDMLStatements();
+    Integer myQuery=Limits.getQueries();
+    system.debug('@@@@ myDMLLimit: '+myDMLLimit);
+    system.debug('@@@@ myQuery: '+myQuery);
+}
