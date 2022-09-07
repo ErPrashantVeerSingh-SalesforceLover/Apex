@@ -1,0 +1,39 @@
+/* error message: first error: SELF_REFERENCE_FROM_TRIGGER
+
+complete error:
+Error:Apex trigger AccountTrigger caused an unexpected exception, contact your administrator: AccountTrigger: execution of BeforeUpdate 
+caused by: System.DmlException: Update failed. First exception on row 0 with id 0015g000007naNoAAI; 
+first error: SELF_REFERENCE_FROM_TRIGGER, Object (id = 0015g000007naNo) is currently in trigger AccountTrigger, 
+therefore it cannot recursively update itself: []: Trigger.AccountTrigger: line 20, column 1
+*/
+
+=========================code throwing error==============================
+
+trigger AccountTrigger on Account (before update) {
+    list<Account> UpdatelstAcc= new list<Account>();
+    list<Account> lstAcc= new list<Account>();
+    for(Account acc:trigger.new){
+        if(acc!=trigger.oldmap.get(acc.Id)){
+           lstAcc.add(acc); 
+        }
+    }
+    if(lstAcc.size()>0){
+        for(Opportunity opp:[select Id, Account.Id, Account.Description, Type from Opportunity 
+                             where Account.Id=:lstAcc ORDER BY CreatedDate Limit 1]){
+                                 system.debug('@@@@ opp: '+opp.Account.Description);
+                                 opp.Account.Description=opp.Type;
+                                 system.debug('@@@@ updated account: '+opp.Account.Description);
+                                 UpdatelstAcc.add(opp.Account);
+                                
+                             }
+    }
+    if(UpdatelstAcc.size()>0){
+    update UpdatelstAcc;
+    }
+    integer DMLCount= Limits.getDmlRows();
+    integer DMLRows=Limits.getDmlStatements();
+    integer SOQLCount=Limits.getQueries();
+    system.debug('@@@@: '+DMLCount +''+DMLRows +''+SOQLCount);
+}
+
+=============Solution explained: https://help.salesforce.com/s/articleView?id=000324391&type=1 ===============================
