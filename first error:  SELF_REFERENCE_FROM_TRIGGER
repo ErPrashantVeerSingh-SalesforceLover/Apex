@@ -37,3 +37,35 @@ trigger AccountTrigger on Account (before update) {
 }
 
 =============Solution explained: https://help.salesforce.com/s/articleView?id=000324391&type=1 ===============================
+========>>>>>Solution in below code:<<<<<==============================
+
+
+trigger updateAccount on Account(before update){
+
+set<string> setAcc = new set<string>();
+    map<string,Opportunity> mapUp= new map<string,Opportunity>();
+for(Account ac:trigger.new){
+
+if(ac!=trigger.oldmap.get(ac.Id)){
+	
+	setAcc.add(ac.Id);
+	
+	
+	
+}
+if(setAcc.size()>0){
+	
+	
+	for(Opportunity opp:[select Id, Type, Account.Id, Account.Description,CreatedDate from Opportunity Where 
+	                     Account.Id=:setAcc Order By CreatedDate DESC Limit 1]){
+			system.debug('@@@ opp.Account.Description: '+opp.Account.Description);
+                             system.debug('@@@ opp.Type: '+opp.Type);
+			mapUp.put(opp.AccountId,opp);
+						 }
+    for(Account acc:trigger.new){
+        acc.Description=mapUp.get(acc.Id).Type;
+    }
+}
+
+
+}}
